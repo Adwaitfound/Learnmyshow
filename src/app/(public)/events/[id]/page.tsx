@@ -177,7 +177,7 @@ interface PageProps {
 }
 
 export default async function EventDetailPage({ params }: PageProps) {
-  const { id: _id } = await params;
+  await params;
 
   return (
     <div className="min-h-screen bg-gray-50">
