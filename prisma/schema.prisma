@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ATTENDEE
+  ORGANIZER
+  INSTRUCTOR
+  ADMIN
+}
+
+enum EventStatus {
+  DRAFT
+  PUBLISHED
+  CANCELLED
+  COMPLETED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  WAITLISTED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  role      Role     @default(ATTENDEE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  organizedEvents    Event[]       @relation("OrganizerEvents")
+  instructedSessions Session[]     @relation("InstructorSessions")
+  bookings           Booking[]
+  certificates       Certificate[]
+
+  @@map("users")
+}
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  slug        String      @unique
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  venue       String?
+  city        String?
+  state       String?
+  latitude    Float?
+  longitude   Float?
+  coverImage  String?
+  capacity    Int?
+  price       Decimal?    @db.Decimal(10, 2)
+  status      EventStatus @default(DRAFT)
+  organizerId String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  organizer User      @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  tracks    Track[]
+  bookings  Booking[]
+
+  @@map("events")
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  color       String?
+  eventId     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  event    Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sessions Session[]
+
+  @@map("tracks")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?
+  startTime    DateTime
+  endTime      DateTime
+  room         String?
+  maxAttendees Int?
+  trackId      String
+  instructorId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  track        Track         @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  instructor   User?         @relation("InstructorSessions", fields: [instructorId], references: [id])
+  resources    Resource[]
+  questions    Question[]
+  certificates Certificate[]
+
+  @@map("sessions")
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  userId    String
+  eventId   String
+  status    BookingStatus @default(PENDING)
+  ticketRef String?       @unique
+  paidAt    DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+  @@map("bookings")
+}
+
+model Resource {
+  id        String   @id @default(cuid())
+  title     String
+  url       String
+  type      String
+  sessionId String
+  createdAt DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("resources")
+}
+
+model Question {
+  id        String   @id @default(cuid())
+  body      String
+  sessionId String
+  authorId  String?
+  upvotes   Int      @default(0)
+  answered  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("questions")
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String
+  issuedAt  DateTime @default(now())
+  pdfUrl    String?
+
+  user    User    @relation(fields: [userId], references: [id])
+  session Session @relation(fields: [sessionId], references: [id])
+
+  @@unique([userId, sessionId])
+  @@map("certificates")
+}
