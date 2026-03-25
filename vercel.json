@@ -4,10 +4,12 @@
   "framework": "nextjs",
   "functions": {
     "src/app/api/**/*.ts": {
-      "runtime": "nodejs18.x"
+      "runtime": "nodejs18.x",
+      "maxDuration": 10
     }
   },
   "env": {
     "NODE_ENV": "production"
-  }
+  },
+  "regions": ["iad1"]
 }

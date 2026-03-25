@@ -4,50 +4,46 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Lazy-loaded Prisma client
-class LazyPrismaClient {
-  private client: PrismaClient | null = null;
+// Only create Prisma client if not in build environment
+let prisma: PrismaClient | null = null;
 
-  private getClient(): PrismaClient {
-    if (!this.client) {
-      // Only create client when actually needed
-      if (typeof window === 'undefined' && process.env.DATABASE_URL) {
-        this.client = globalForPrisma.prisma ??
+if (typeof window === 'undefined' && process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  // Development environment - create client
+  prisma = globalForPrisma.prisma ??
+    new PrismaClient({
+      log: ["error"],
+    });
+
+  if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+}
+
+// Export a proxy that creates client on demand
+export const prisma = new Proxy({} as PrismaClient, {
+  get(target, prop) {
+    if (!prisma) {
+      // Create client on first access
+      if (typeof window === 'undefined') {
+        if (!process.env.DATABASE_URL && !process.env.DIRECT_URL) {
+          throw new Error(
+            "DATABASE_URL and DIRECT_URL are not set. Prisma cannot connect without a valid database connection string."
+          );
+        }
+
+        prisma = globalForPrisma.prisma ??
           new PrismaClient({
             log: ["error"],
           });
 
-        if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = this.client;
+        if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
       } else {
-        // During build/static generation, return a minimal mock
-        this.client = new Proxy({} as PrismaClient, {
-          get: (target, prop) => {
-            if (typeof prop === 'string' && prop.startsWith('$')) {
-              // Prisma methods like $connect, $disconnect
-              return () => Promise.resolve();
-            }
-            // Return a function that throws during build time
-            return (...args: any[]) => {
-              throw new Error(`Prisma client not available during build. Property: ${String(prop)}`);
-            };
-          }
-        });
+        throw new Error('Prisma client not available on client side');
       }
     }
-    return this.client;
-  }
 
-  get $connect() { return this.getClient().$connect; }
-  get $disconnect() { return this.getClient().$disconnect; }
-  get user() { return this.getClient().user; }
-  get event() { return this.getClient().event; }
-  get eventOccurrence() { return this.getClient().eventOccurrence; }
-  get track() { return this.getClient().track; }
-  get session() { return this.getClient().session; }
-  get booking() { return this.getClient().booking; }
-  get resource() { return this.getClient().resource; }
-  get question() { return this.getClient().question; }
-  get certificate() { return this.getClient().certificate; }
-}
-
-export const prisma = new LazyPrismaClient();
+    const value = (prisma as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(prisma);
+    }
+    return value;
+  },
+});
