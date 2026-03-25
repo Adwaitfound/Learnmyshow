@@ -1,75 +1,92 @@
-import { Award, Download, Share2 } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+"use client";
+
+import { useEffect, useState } from "react";
+import { Award, Download, Loader2, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 
-const CERTIFICATES = [
-  {
-    id: "c1",
-    title: "Microlearning Fundamentals",
-    event: "Future of Learning Conference",
-    issuedAt: "April 6, 2025",
-    credentialId: "LMS-2025-MC-001",
-    verified: true,
-  },
-  {
-    id: "c2",
-    title: "Instructional Design Bootcamp",
-    event: "Instructional Design Bootcamp",
-    issuedAt: "April 22, 2025",
-    credentialId: "LMS-2025-ID-042",
-    verified: true,
-  },
-];
+interface Certificate {
+  id: string;
+  url: string | null;
+  issuedAt: string;
+  session: {
+    title: string;
+    track: { name: string };
+    event: { title: string; startDate: string };
+  };
+}
 
-export default function CertificatesPage() {
+export default function AttendeeCertificatesPage() {
+  const [certificates, setCertificates] = useState<Certificate[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      const res = await fetch("/api/my/certificates");
+      if (res.ok) {
+        const json = await res.json();
+        setCertificates(json.certificates);
+      }
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="h-8 w-8 animate-spin text-neon" />
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Certificates</h1>
-        <p className="text-gray-500">
-          Verified digital certificates from your completed sessions
-        </p>
+        <h1 className="text-2xl font-bold text-white">Certificates</h1>
+        <p className="text-muted">Your earned certificates</p>
       </div>
 
-      {CERTIFICATES.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 bg-white py-16 text-center">
-          <Award className="h-12 w-12 text-gray-300" />
-          <p className="mt-4 font-medium text-gray-500">No certificates yet</p>
-          <p className="mt-1 text-sm text-gray-400">
-            Complete sessions to earn certificates
+      {certificates.length === 0 ? (
+        <div className="rounded-xl border-2 border-dashed border-surface-border bg-surface-card py-12 text-center">
+          <Award className="mx-auto h-10 w-10 text-muted" />
+          <p className="mt-3 text-muted">
+            No certificates yet. Complete sessions to earn them!
           </p>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2">
-          {CERTIFICATES.map((cert) => (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {certificates.map((cert) => (
             <div
               key={cert.id}
-              className="rounded-2xl border border-gray-200 bg-white overflow-hidden"
+              className="rounded-xl border border-surface-border bg-surface-card p-5"
             >
-              {/* Certificate visual */}
-              <div className="h-32 bg-gradient-to-br from-brand-700 to-brand-500 flex items-center justify-center">
-                <Award className="h-12 w-12 text-white/80" />
+              <div className="flex items-start justify-between">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/10">
+                  <Award className="h-5 w-5 text-green-400" />
+                </div>
+                {cert.url && (
+                  <a
+                    href={cert.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-lg p-2 text-muted hover:bg-surface hover:text-neon"
+                  >
+                    <Download className="h-4 w-4" />
+                  </a>
+                )}
               </div>
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-gray-900">{cert.title}</h3>
-                  {cert.verified && <Badge variant="success">Verified</Badge>}
-                </div>
-                <p className="mt-1 text-sm text-gray-500">{cert.event}</p>
-                <p className="mt-0.5 text-xs text-gray-400">
-                  Issued {cert.issuedAt}
-                </p>
-                <p className="mt-0.5 text-xs font-mono text-gray-400">
-                  {cert.credentialId}
-                </p>
-                <div className="mt-4 flex gap-2">
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <Download className="mr-1.5 h-3.5 w-3.5" /> Download
-                  </Button>
-                  <Button size="sm" variant="outline" className="flex-1">
-                    <Share2 className="mr-1.5 h-3.5 w-3.5" /> Share
-                  </Button>
-                </div>
+              <h3 className="mt-3 font-semibold text-white">
+                {cert.session.title}
+              </h3>
+              <p className="mt-0.5 text-sm text-muted">
+                {cert.session.event.title}
+              </p>
+              <div className="mt-3 flex items-center justify-between">
+                <Badge variant="info">{cert.session.track.name}</Badge>
+                <span className="flex items-center gap-1 text-xs text-muted">
+                  <Calendar className="h-3 w-3" />
+                  {new Date(cert.issuedAt).toLocaleDateString()}
+                </span>
               </div>
             </div>
           ))}

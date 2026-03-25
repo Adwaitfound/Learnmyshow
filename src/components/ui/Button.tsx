@@ -6,11 +6,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses = {
-  primary: "bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500",
-  secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus:ring-gray-400",
+  primary: "bg-neon text-black hover:bg-neon/80 focus:ring-neon",
+  secondary: "bg-surface-elevated text-gray-200 hover:bg-surface-border focus:ring-neon/50",
   outline:
-    "border border-brand-600 text-brand-600 hover:bg-brand-50 focus:ring-brand-500",
-  ghost: "text-gray-700 hover:bg-gray-100 focus:ring-gray-400",
+    "border border-neon text-neon hover:bg-neon/10 focus:ring-neon",
+  ghost: "text-gray-300 hover:bg-surface-elevated focus:ring-neon/50",
 };
 
 const sizeClasses = {

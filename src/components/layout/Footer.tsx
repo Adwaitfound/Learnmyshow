@@ -3,29 +3,29 @@ import { GraduationCap } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-gray-200 bg-gray-50 py-12">
+    <footer className="border-t border-surface-border bg-surface py-12">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div>
             <Link
               href="/"
-              className="flex items-center gap-2 font-bold text-lg text-brand-700"
+              className="flex items-center gap-2 font-bold text-lg text-neon"
             >
-              <GraduationCap className="h-6 w-6 text-brand-600" />
+              <GraduationCap className="h-6 w-6 text-neon" />
               LearnMyShow
             </Link>
-            <p className="mt-3 text-sm text-gray-500">
+            <p className="mt-3 text-sm text-muted">
               The nation&apos;s leading experiential education and conference
               platform.
             </p>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Platform</h3>
+            <h3 className="text-sm font-semibold text-white">Platform</h3>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link
                   href="/events"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   Browse Events
                 </Link>
@@ -33,28 +33,20 @@ export function Footer() {
               <li>
                 <Link
                   href="/dashboard/attendee"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   Attendee Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/dashboard/organizer"
-                  className="text-sm text-gray-500 hover:text-brand-600"
-                >
-                  Organizer Tools
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Company</h3>
+            <h3 className="text-sm font-semibold text-white">Company</h3>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link
                   href="/about"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   About
                 </Link>
@@ -62,7 +54,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   Blog
                 </Link>
@@ -70,7 +62,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   Contact
                 </Link>
@@ -78,12 +70,12 @@ export function Footer() {
             </ul>
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-gray-900">Legal</h3>
+            <h3 className="text-sm font-semibold text-white">Legal</h3>
             <ul className="mt-3 space-y-2">
               <li>
                 <Link
                   href="/privacy"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   Privacy Policy
                 </Link>
@@ -91,7 +83,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/terms"
-                  className="text-sm text-gray-500 hover:text-brand-600"
+                  className="text-sm text-muted hover:text-neon"
                 >
                   Terms of Service
                 </Link>
@@ -99,8 +91,17 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-8 border-t border-gray-200 pt-8 text-center text-sm text-gray-400">
-          © {new Date().getFullYear()} LearnMyShow. All rights reserved.
+        <div className="mt-8 border-t border-surface-border pt-8 text-center text-sm text-muted">
+          <p>© {new Date().getFullYear()} LearnMyShow. All rights reserved.</p>
+          <p className="mt-2">
+            Want to host an event?{" "}
+            <a
+              href="mailto:hello@learnmyshow.com"
+              className="text-neon hover:underline"
+            >
+              Drop us an email
+            </a>
+          </p>
         </div>
       </div>
     </footer>

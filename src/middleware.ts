@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 const ROLE_ROUTES: Record<string, string[]> = {
-  "/dashboard/attendee": ["ATTENDEE", "ADMIN"],
-  "/dashboard/organizer": ["ORGANIZER", "ADMIN"],
-  "/dashboard/instructor": ["INSTRUCTOR", "ADMIN"],
+  "/dashboard/admin": ["SUPER_ADMIN"],
+  "/dashboard/attendee": ["ATTENDEE", "ORGANIZER", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"],
+  "/dashboard/organizer": ["ORGANIZER", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"],
+  "/dashboard/instructor": ["ORGANIZER", "INSTRUCTOR", "ADMIN", "SUPER_ADMIN"],
 };
 
 /**

@@ -13,10 +13,12 @@ enum Role {
   ORGANIZER
   INSTRUCTOR
   ADMIN
+  SUPER_ADMIN
 }
 
 enum EventStatus {
   DRAFT
+  PENDING_REVIEW
   PUBLISHED
   CANCELLED
   COMPLETED
@@ -59,6 +61,8 @@ model Event {
   latitude    Float?
   longitude   Float?
   coverImage  String?
+  featured    Boolean     @default(false)
+  recurring   Boolean     @default(false)
   capacity    Int?
   price       Decimal?    @db.Decimal(10, 2)
   status      EventStatus @default(DRAFT)
@@ -66,11 +70,27 @@ model Event {
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
 
-  organizer User      @relation("OrganizerEvents", fields: [organizerId], references: [id])
-  tracks    Track[]
-  bookings  Booking[]
+  organizer   User              @relation("OrganizerEvents", fields: [organizerId], references: [id])
+  tracks      Track[]
+  bookings    Booking[]
+  occurrences EventOccurrence[]
 
   @@map("events")
+}
+
+model EventOccurrence {
+  id        String   @id @default(cuid())
+  eventId   String
+  label     String
+  startDate DateTime
+  endDate   DateTime
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_occurrences")
 }
 
 model Track {
